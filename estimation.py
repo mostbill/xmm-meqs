@@ -1,7 +1,7 @@
 '''
 author: snowball@USTC
 date: 2020.3.20
-last update: 2020.3.20
+last update: 2020.8.20
 fuction: derive SN ratios and determine if a change is significant
 '''
 import math

@@ -1,7 +1,7 @@
 '''
 author: snowball@USTC
 date: 2020.3.2
-last update: 2020.3.20
+last update: 2020.8.20
 fuction: derive UV and X-ray luminosities (for brevity) within catalogues
 '''
 import math
@@ -222,13 +222,13 @@ def plotSingleAlpha(source):
 def plotMultiAlpha(source):
     # plot alpha for multi-epochs source
     alphas = []; _uv_lums = []; _xr_lums = []
-    start_time = []
+    # start_time = []
     try:
         for i in range(len(source)):
             alphas.append(0.3838 * (brevity_xr_lums[source[i]] - brevity_uv_lums[source[i]]))
             _uv_lums.append(brevity_uv_lums[source[i]])
             _xr_lums.append(brevity_xr_lums[source[i]])
-            start_time.append(mjd_start[source[i]])
+            # start_time.append(mjd_start[source[i]])
         alphas = np.array(alphas); _uv_lums = np.array(_uv_lums); _xr_lums = np.array(_xr_lums)
         _uv_lums = _uv_lums[np.argsort(start_time)]; _xr_lums = _xr_lums[np.argsort(start_time)]; alphas = alphas[np.argsort(start_time)]
         plt.plot(_uv_lums, alphas, color = 'black', linewidth = 0.5, zorder = -1)
@@ -477,23 +477,22 @@ def main():
 
     sources = groupSource(flags)
 
-    readMJDStart()
+    # readMJDStart() # only use to plot the sequence of the observations
 
     readRedshift(lists) # read in all redshifts for every entry
-    # readBrevityLums(); redshiftDist(sources)
+    # readBrevityLums(); redshiftDist(sources) # only use to plot z-distribution
 
     readUVFlux(lists); readUVError(lists); readXrFlux(lists); readXrError(lists)
-    # plotSet()
+    # plotSet() # only use to plot
     readMeanSED() # read mean SEDs of QSOs from Richards et al. 2006
     # plotSED(sources) # plot the SED for all sources
     
-    # computeUVBrevityFlux(sources) # compute flux for brevity for every source
-    # computeXrBrevityFlux(sources)
+    computeUVBrevityFlux(sources); computeXrBrevityFlux(sources) # compute flux for brevity for every source
 
-    # readBrevityLums(); calcAlpha(sources)
+    # readBrevityLums(); calcAlpha(sources) # only use to calculate all the Alphas
 
-    # readBrevityLums(); doLinearFitting()
-    readSNratios();readBrevityLums(); doSelectedLinearFitting(sources)
+    # readBrevityLums(); doLinearFitting() # only use to do linear fitting to all the Alpha - L data
+    # readSNratios(); readBrevityLums(); doSelectedLinearFitting(sources) # only use to do linear fitting to selected (based on S/N ratios) the Alpha - L data
 
     # plotSetAlpha()
     # readBrevityLums()
