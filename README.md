@@ -15,18 +15,18 @@ This code is the technical code content of data reduction, analysis and plot (al
 
 ## Usage
 
-- $luminosity.py$
+- luminosity.py
 
 The main. Run it to group the source from the _fits_ file automatically. Check the _main_ part to derive the brevity luminosities (UV, X-ray), carry out linear fitting and so on.
 
-- $estimation.py$
+- estimation.py
 
 Sub-code for the $luminosity.py$, as stated in the top of the code.
 
-- $wash_fits.py$
+- wash_fits.py
 
 Sub-code for the $luminosity.py$, as stated in the top of the code.
 
-- $match.py$
+- match.py
 
 Sub-code for the $luminosity.py$, as stated in the top of the code.
