@@ -15,7 +15,7 @@ This code is the technical code content of data reduction, analysis and plot (al
 
 ## Usage
 
-- luminosity.py
+### _luminosity.py_
 
 The entry of the whole code family. Run it to:
 
@@ -29,14 +29,14 @@ The entry of the whole code family. Run it to:
 
     - Compute the Signal-to-Noise-Ratio (SN ratios) for every source. 
 
-- estimation.py
+### _estimation.py_
 
 Sub-code for the _luminosity.py_, as stated in the top of the code.
 
-- wash_fits.py
+### _wash_fits.py_
 
 Sub-code for the _luminosity.py_, as stated in the top of the code.
 
-- match.py
+### _match.py_
 
 Sub-code for the _luminosity.py_, as stated in the top of the code.
