@@ -5,28 +5,38 @@ This code is the technical code content of data reduction, analysis and plot (al
 
 ## Data
 
-- XMM-OM SUSS
+- _XMM-OM SUSS_
 
-- 3XMM-DR8
+- _3XMM-DR8_
 
 ## Software
 
-- TOPCAT
+- _TOPCAT_
 
 ## Usage
 
 - luminosity.py
 
-The main. Run it to group the source from the _fits_ file automatically. Check the _main_ part to derive the brevity luminosities (UV, X-ray), carry out linear fitting and so on.
+The entry of the whole code family. Run it to:
+
+1. Group the source from the _fits_ file automatically.
+
+2. Check the _main_ part to:
+
+    - Derive the brevity luminosities, $\alpha_{OX}$ for every source (UV, X-ray).
+
+    - Carry out the linear fitting to the data.
+
+    - Compute the Signal-to-Noise-Ratio (SN ratios) for every source. 
 
 - estimation.py
 
-Sub-code for the $luminosity.py$, as stated in the top of the code.
+Sub-code for the _luminosity.py_, as stated in the top of the code.
 
 - wash_fits.py
 
-Sub-code for the $luminosity.py$, as stated in the top of the code.
+Sub-code for the _luminosity.py_, as stated in the top of the code.
 
 - match.py
 
-Sub-code for the $luminosity.py$, as stated in the top of the code.
+Sub-code for the _luminosity.py_, as stated in the top of the code.
