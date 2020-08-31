@@ -18,6 +18,7 @@ from tqdm import tqdm
 from astropy.cosmology import FlatLambdaCDM
 cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
 
+from bootstrap import bootstrapLF
 from match import multiepoch
 
 # colors from JT
@@ -79,8 +80,8 @@ def readRedshift(lists):
 def readBrevityLums():
     # read lums for brevity
     global brevity_uv_lums; global brevity_xr_lums
-    brevity_uv_lums = np.loadtxt('uv_brevity_lums', delimiter=' ')
-    brevity_xr_lums = np.loadtxt('xr_brevity_lums', delimiter = ' ')
+    brevity_uv_lums = np.loadtxt(workpath + 'uv_brevity_lums', delimiter=' ')
+    brevity_xr_lums = np.loadtxt(workpath + 'xr_brevity_lums', delimiter = ' ')
 
 def readMeanSED():
     # read mean SEDs of QSOs from Richards et al. 2006
@@ -349,8 +350,8 @@ def computeUVBrevityFlux(sources):
             pass
             # multiPlotSED
 
-    np.savetxt("uv_brevity_lums", brevity_lums, fmt = '%f', delimiter = ' ')
-    np.savetxt("uv_brevity_errors", brevity_errors, fmt = '%E', delimiter = ' ')
+    np.savetxt(workpath + "uv_brevity_lums", brevity_lums, fmt = '%f', delimiter = ' ')
+    np.savetxt(workpath + "uv_brevity_errors", brevity_errors, fmt = '%E', delimiter = ' ')
 
 def computeXrBrevityFlux(sources):
     # compute Xr flux for brevity for every source
@@ -381,11 +382,10 @@ def plotAlphaOX(sources):
 def readSNratios():
     # read the locats for sources 
     global uv_snratios; global xr_snratios; global source_locats
-    uv_snratios = np.loadtxt('uv_snratios', delimiter=' ')
-    xr_snratios = np.loadtxt('xr_snratios', delimiter=' ')
-    source_locats = np.loadtxt('snratios_sources_locats', delimiter=' ')
+    uv_snratios = np.loadtxt(workpath + 'uv_snratios', delimiter=' ')
+    xr_snratios = np.loadtxt(workpath + 'xr_snratios', delimiter=' ')
+    source_locats = np.loadtxt(workpath + 'snratios_sources_locats', delimiter=' ')
     
-
 def plotSelectedAlphaOX(sources):
     # plot alpha_ox for selected (SN ratio value) source
     xr_sn_threshold = 0
@@ -405,7 +405,7 @@ def plotSelectedAlphaOX(sources):
                 except:
                     pass
 
-def lineaRegression(x, y): 
+def linearRegression(x, y): 
     # linear least squares fit 
     # y = a0 + a1*x
     x = np.array(x); y = np.array(y)
@@ -415,7 +415,8 @@ def lineaRegression(x, y):
     sumx2 = sum(x**2) 
     sumxy = sum(x*y) 
 
-    print(N, sumx[0], sumx2[0], sumy[0], sumxy[0])
+    # print(sumx); print(sumy)
+    # print(N, sumx[0], sumx2[0], sumy[0], sumxy[0])
 
     try:
         A = np.mat([[N, sumx], [sumx, sumx2]]) 
@@ -427,10 +428,11 @@ def lineaRegression(x, y):
     # A = np.mat([[518, 15530.786], [15530.786, 465840.395]])
     # b = np.array([-782.632, -23494.554])
     a0, a1 = np.linalg.solve(A, b)
-    print(a0, a1)
+
+    return a0, a1
 
 def doLinearFitting():
-    alphas = np.loadtxt('all_alphas', delimiter=' ')
+    alphas = np.loadtxt(workpath + 'all_alphas', delimiter=' ')
     _alphas = []; _uv_brevity_lums = [] # with no value of -inf
 
     for i in range(len(alphas)):
@@ -438,14 +440,16 @@ def doLinearFitting():
             _alphas.append(alphas[i])
             _uv_brevity_lums.append(brevity_uv_lums[i])
     
-    lineaRegression(_uv_brevity_lums, _alphas)
+    a0, a1 = linearRegression(_uv_brevity_lums, _alphas)
+    print(a0, a1)
+    bootstrapLF(_uv_brevity_lums, _alphas, a0, a1, 10000) # 20 times of bootstrap
 
 def doSelectedLinearFitting(sources):
     # do linear fitting to selected sources
     xr_sn_threshold = 6.3273
     uv_sn_threshold = 20
 
-    alphas = np.loadtxt('all_alphas', delimiter=' ')
+    alphas = np.loadtxt(workpath + 'all_alphas', delimiter=' ')
     _alphas = []; _uv_brevity_lums = []
 
     for i in tqdm(range(len(sources))):
@@ -462,36 +466,36 @@ def doSelectedLinearFitting(sources):
                 except:
                     pass   
     
-    lineaRegression(_uv_brevity_lums, _alphas)
-
+    linearRegression(_uv_brevity_lums, _alphas)
 
 def readMJDStart():
     # read MJD start time of every observation
     global mjd_start; mjd_start = []
-    mjd_start = np.loadtxt('mjd_start', delimiter = ' ')
+    mjd_start = np.loadtxt(workpath + 'mjd_start', delimiter = ' ')
     
 def main():
-    workpath = '/Users/snowball/astro/workspace/XMM-OM/'
-    lists = fits.open(workpath + 'new.fits')
-    flags = multiepoch(lists) # indicate sources which belong to a single source
+    # main
+    global workpath; workpath = '/Users/snowball/astro/workspace/XMM-OM/'
+    # lists = fits.open(workpath + 'new.fits')
+    # flags = multiepoch(lists) # indicate sources which belong to a single source
 
-    sources = groupSource(flags)
+    # sources = groupSource(flags)
 
-    # readMJDStart() # only use to plot the sequence of the observations
+    # # readMJDStart() # only use to plot the sequence of the observations
 
-    readRedshift(lists) # read in all redshifts for every entry
-    # readBrevityLums(); redshiftDist(sources) # only use to plot z-distribution
+    # readRedshift(lists) # read in all redshifts for every entry
+    # # readBrevityLums(); redshiftDist(sources) # only use to plot z-distribution
 
-    readUVFlux(lists); readUVError(lists); readXrFlux(lists); readXrError(lists)
-    # plotSet() # only use to plot
-    readMeanSED() # read mean SEDs of QSOs from Richards et al. 2006
-    # plotSED(sources) # plot the SED for all sources
+    # readUVFlux(lists); readUVError(lists); readXrFlux(lists); readXrError(lists)
+    # # plotSet() # only use to plot
+    # readMeanSED() # read mean SEDs of QSOs from Richards et al. 2006
+    # # plotSED(sources) # plot the SED for all sources
     
-    computeUVBrevityFlux(sources); computeXrBrevityFlux(sources) # compute flux for brevity for every source
+    # computeUVBrevityFlux(sources); computeXrBrevityFlux(sources) # compute flux for brevity for every source
 
     # readBrevityLums(); calcAlpha(sources) # only use to calculate all the Alphas
 
-    # readBrevityLums(); doLinearFitting() # only use to do linear fitting to all the Alpha - L data
+    readBrevityLums(); doLinearFitting() # only use to do linear fitting to all the Alpha - L data
     # readSNratios(); readBrevityLums(); doSelectedLinearFitting(sources) # only use to do linear fitting to selected (based on S/N ratios) the Alpha - L data
 
     # plotSetAlpha()
