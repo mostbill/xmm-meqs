@@ -18,7 +18,6 @@ from tqdm import tqdm
 from astropy.cosmology import FlatLambdaCDM
 cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
 
-from bootstrap import bootstrapLF
 from match import multiepoch
 
 # colors from JT
@@ -468,6 +467,22 @@ def doSelectedLinearFitting(sources):
     
     linearRegression(_uv_brevity_lums, _alphas)
 
+def bootstrapLF(x, y, m0, m1, times):
+    # carry out error estimation through bootstrap method
+
+    temp_m0 = []; temp_m1 = []
+
+    for i in range(times):
+        index = np.random.choice(len(x), len(x))
+        _x = np.array(x)[index]
+        _y = np.array(y)[index]
+
+        _m0, _m1 = linearRegression(_x, _y)
+        temp_m0.append((_m0-m0)**2.0); temp_m1.append((_m1-m1)**2.0)
+
+    print('sigma_m0**2 = ' + str(np.sum(temp_m0)/times) + '\n' + 'sigma_m1**2 = ' + \
+        str(np.sum(temp_m1)/times))
+        
 def readMJDStart():
     # read MJD start time of every observation
     global mjd_start; mjd_start = []
