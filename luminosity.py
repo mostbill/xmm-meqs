@@ -441,7 +441,7 @@ def doLinearFitting():
     
     a0, a1 = linearRegression(_uv_brevity_lums, _alphas)
     print(a0, a1)
-    bootstrapLF(_uv_brevity_lums, _alphas, a0, a1, 10000) # 20 times of bootstrap
+    bootstrapLF(_uv_brevity_lums, _alphas, a0, a1, 4000) # 4000 times of bootstrap, more trials than this will not bring any more knowledge
 
 def doSelectedLinearFitting(sources):
     # do linear fitting to selected sources
@@ -482,6 +482,9 @@ def bootstrapLF(x, y, m0, m1, times):
 
     print('sigma_m0**2 = ' + str(np.sum(temp_m0)/times) + '\n' + 'sigma_m1**2 = ' + \
         str(np.sum(temp_m1)/times))
+
+    print('+sqrt(sigma_m0**2) = ' + str(np.sqrt(np.sum(temp_m0)/times)) + '\n' + '+sqrt(sigma_m1**2) = ' + \
+        str(np.sqrt(np.sum(temp_m1)/times)))
         
 def readMJDStart():
     # read MJD start time of every observation
