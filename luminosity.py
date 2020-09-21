@@ -8,6 +8,8 @@ import math
 from astropy.coordinates import SkyCoord
 from astropy import units as u
 from astropy.io import fits
+from astropy.io import ascii
+from astropy.table import Table
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -75,6 +77,24 @@ def readRedshift(lists):
     redshifts = np.array(redshifts)
 
     np.savetxt('redshifts', redshifts, fmt = '%f', delimiter= ' ')
+
+def readRaDec(lists):
+    # read ra, dec from fits
+    global ra, dec
+    ra = lists[1].data['RA_1'][:]; dec = lists[1].data['DEC_1'][:]
+    ra = np.array(ra); dec = np.array(dec)
+
+    np.savetxt('ra', ra, fmt = '%f', delimiter= ' ')
+    np.savetxt('dec', dec, fmt = '%f', delimiter= ' ')
+
+def readID(lists):
+    # read srcid, detid from fits
+    global srcid, detid
+    srcid = lists[1].data['SRCID'][:]; detid = lists[1].data['DETID'][:]
+    srcid = np.array(srcid); detid = np.array(detid)
+
+    np.savetxt('srcid', srcid, fmt = '%f', delimiter= ' ')
+    np.savetxt('detid', detid, fmt = '%f', delimiter= ' ')   
 
 def readBrevityLums():
     # read lums for brevity
@@ -491,6 +511,10 @@ def readMJDStart():
     global mjd_start; mjd_start = []
     mjd_start = np.loadtxt(workpath + 'mjd_start', delimiter = ' ')
     
+def makeCSV():
+    # make a catalog of all sources with all data available
+    ascii.write(resultset.to_table(), 'z_dropouts.csv', format='csv', fast_writer=False, overwrite = True)
+
 def main():
     # main
     global workpath; workpath = '/Users/snowball/astro/workspace/XMM-OM/'
@@ -527,6 +551,7 @@ def main():
     # plt.savefig('multi_selected_Alpha_0.0.pdf', dpi = 2000)
 
     # makeCSV
+    makeCSV();
     
 
 if __name__ == "__main__":
