@@ -511,17 +511,42 @@ def readMJDStart():
     global mjd_start; mjd_start = []
     mjd_start = np.loadtxt(workpath + 'mjd_start', delimiter = ' ')
     
-def makeCSV():
+def makeCSV(sources):
     # make a catalog of all sources with all data available
-    ascii.write(resultset.to_table(), 'z_dropouts.csv', format='csv', fast_writer=False, overwrite = True)
+    _ra = []; _dec = []; _srcid = []; _detid = []
+    _uv_brevity_lums = []; _xr_brevity_lums = []; _alphas = []
+    _uv_brevity_fluxes = []; _xr_brevity_fluxes = []; _uv_brevity_errors = []; _xr_brevity_errors = []
+    _source_numbers = []; _epochs = []
+    # flags = [] # flags to show that the sources are synchronized or not
+    for i in tqdm(range(len(sources))):
+        if(len(sources[i]) == 1):
+            _source_numbers.append(int(i+1))
+            _epochs.append(int(1))
+        elif(len(sources[i]) > 1):
+            for j in range(len(sources[i])):
+                j=i
+                _source_numbers.append(int(j+1))
+                _epochs.append(int(len(sources[i])))
+
+    _ra = ra; _dec = dec; _srcid = srcid; _detid = detid
+    _uv_brevity_lums = np.loadtxt(workpath + 'uv_brevity_lums', delimiter=' '); _xr_brevity_lums = np.loadtxt(workpath + 'xr_brevity_lums', delimiter=' ')
+    _uv_brevity_fluxes = np.loadtxt(workpath + 'uv_brevity_fluxes', delimiter=' '); _xr_brevity_fluxes = np.loadtxt(workpath + 'xr_brevity_fluxes', delimiter=' ')
+    _uv_brevity_errors = np.loadtxt(workpath + 'uv_brevity_errors', delimiter=' '); _xr_brevity_errors = np.loadtxt(workpath + 'xr_brevity_errors', delimiter=' ')
+    _alphas = np.loadtxt(workpath + 'all_alphas', delimiter=' ')
+
+    data = Table([_ra, _dec, _source_numbers, _epochs, _alphas, _uv_brevity_fluxes, _uv_brevity_errors, _uv_brevity_lums, \
+        _xr_brevity_fluxes, _xr_brevity_errors, _xr_brevity_lums, _srcid, _detid], \
+            names = ['ra', 'dec', 'source', 'epoch number', 'alpha', 'uv_brevity_flux', 'uv_brevity_error', 'uv_brevity_luminosity', \
+                'xr_brevity_flux', 'xr_brevity_error', 'xr_brevity_luminosity', 'SRCID', 'DETID'])
+    ascii.write(data, 'meqs.csv', format='csv', fast_writer=False, overwrite = True)
 
 def main():
     # main
     global workpath; workpath = '/Users/snowball/astro/workspace/XMM-OM/'
-    # lists = fits.open(workpath + 'new.fits')
-    # flags = multiepoch(lists) # indicate sources which belong to a single source
+    lists = fits.open(workpath + 'new.fits')
+    flags = multiepoch(lists) # indicate sources which belong to a single source
 
-    # sources = groupSource(flags)
+    sources = groupSource(flags)
 
     # # readMJDStart() # only use to plot the sequence of the observations
 
@@ -537,7 +562,7 @@ def main():
 
     # readBrevityLums(); calcAlpha(sources) # only use to calculate all the Alphas
 
-    readBrevityLums(); doLinearFitting() # only use to do linear fitting to all the Alpha - L data
+    # readBrevityLums(); doLinearFitting() # only use to do linear fitting to all the Alpha - L data
     # readSNratios(); readBrevityLums(); doSelectedLinearFitting(sources) # only use to do linear fitting to selected (based on S/N ratios) the Alpha - L data
 
     # plotSetAlpha()
@@ -550,8 +575,8 @@ def main():
     # plotSelectedAlphaOX(sources)
     # plt.savefig('multi_selected_Alpha_0.0.pdf', dpi = 2000)
 
-    # makeCSV
-    makeCSV();
+    readRaDec(lists); readID(lists)
+    makeCSV(sources)
     
 
 if __name__ == "__main__":
